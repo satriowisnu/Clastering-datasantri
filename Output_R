@@ -1,0 +1,101 @@
+> library(ggplot2)
+> library(cluster)
+> data=datasantri
+> data
+# A tibble: 20 x 8
+   kota  JumlahTpq PengajarPria PengajarWanita JumlahPengajar
+   <chr>     <dbl>        <dbl>          <dbl>          <dbl>
+ 1 Para…       144          181            185            366
+ 2 Kled…        50          178             38            216
+ 3 Bans…        43          122             95            217
+ 4 B u …        64          346            176            522
+ 5 Tema…       125          263            198            461
+ 6 Tlog…        34           93             58            151
+ 7 Temb…        51          186            131            317
+ 8 Selo…        67          225            118            343
+ 9 Kran…        73          240             85            325
+10 Prin…        83          406            129            535
+11 Kalo…        77          206            153            359
+12 Kand…        90          263            247            510
+13 K e …       114          230            190            420
+14 Ngad…        30           90             83            173
+15 J u …        85          213            130            343
+16 Gema…        45          179            143            322
+17 Cand…        75          302            177            479
+18 Bejen        47          145             53            198
+19 Tret…        38          295             86            381
+20 Wono…        48          293            123            416
+# … with 3 more variables: SantriPria <dbl>, SantriWanita <dbl>,
+#   JumlahSantri <dbl>
+> data$kota
+ [1] "Parakan"     "Kledung"     "Bansari"     "B u l u"    
+ [5] "Temanggung"  "Tlogomulyo"  "Tembarak"    "Selopampang"
+ [9] "Kranggan"    "Pringsurat"  "Kaloran"     "Kandangan"  
+[13] "K e d u"     "Ngadirejo"   "J u m o"     "Gemawang"   
+[17] "Candiroto"   "Bejen"       "Tretep"      "Wonoboyo"   
+> hasil<-kmeans(data[,2,3],3)
+> hasil
+K-means clustering with 3 clusters of sizes 8, 9, 3
+
+Cluster means:
+       [,1]
+1  76.75000
+2  42.88889
+3 127.66667
+
+Clustering vector:
+ [1] 3 2 2 1 3 2 2 1 1 1 1 1 3 2 1 2 1 2 2 2
+
+Within cluster sum of squares by cluster:
+[1] 557.5000 432.8889 460.6667
+ (between_SS / total_SS =  92.1 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"    
+[5] "tot.withinss" "betweenss"    "size"         "iter"        
+[9] "ifault"      
+> hasil$cluster
+ [1] 3 2 2 1 3 2 2 1 1 1 1 1 3 2 1 2 1 2 2 2
+> hasil$centers
+       [,1]
+1  76.75000
+2  42.88889
+3 127.66667
+> hasil$size
+[1] 8 9 3
+> table(hasil$cluster, data$kota)
+   
+    B u l u Bansari Bejen Candiroto Gemawang J u m o K e d u Kaloran
+  1       1       0     0         1        0       1       0       1
+  2       0       1     1         0        1       0       0       0
+  3       0       0     0         0        0       0       1       0
+   
+    Kandangan Kledung Kranggan Ngadirejo Parakan Pringsurat
+  1         1       0        1         0       0          1
+  2         0       1        0         1       0          0
+  3         0       0        0         0       1          0
+   
+    Selopampang Temanggung Tembarak Tlogomulyo Tretep Wonoboyo
+  1           1          0        0          0      0        0
+  2           0          0        1          1      1        1
+  3           0          1        0          0      0        0
+> hasil$cluster <- as.factor(hasil$cluster)
+> ggplot(data, aes(data$kota, data$JumlahTpq, data$PengajarPria, data$PengajarWanita, data$SantriPria, data$SantriWanita, color = hasil$cluster)) + geom_point()
+Warning message:
+Duplicated aesthetics after name standardisation:  
+> dataSample <-data[,2,3]
+> hc <- hclust(dist(dataSample), method="ave")
+> hc
+
+Call:
+hclust(d = dist(dataSample), method = "ave")
+
+Cluster method   : average 
+Distance         : euclidean 
+Number of objects: 20 
+
+> plot(hc, hang = -1, labels=data$JumlahTpq)
+> d <- dist(dataSample, method="euclidian")
+> pamCluster <- pam(d, 3)
+> clusplot(as.matrix(d), pamCluster$cluster, color=T, shade=T, labels=3, lines=0) 
